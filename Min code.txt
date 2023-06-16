@@ -1,0 +1,131 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Timers;
+
+namespace ConsoleApp8
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            DateTime aDate = DateTime.Now;
+
+            DVIService.monitorSoapClient ds = new DVIService.monitorSoapClient();
+
+
+                while(true)
+                 { 
+                    int tid = 0;
+
+                    Console.Clear();
+
+                    Console.BackgroundColor = ConsoleColor.Black;
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+
+                    Console.Write("--Temperatur og fugtighed--");
+
+                    Console.WriteLine(" ");
+
+                    //Lager
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+
+                    Console.WriteLine("Lager:");
+
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Console.Write("Temp:");
+
+                    Console.WriteLine(ds.StockTemp().ToString("N") + "°C");
+
+                    Console.Write("Fugt:");
+
+                    Console.WriteLine(ds.StockHumidity().ToString("N") + "%");
+
+                    //Udenfor
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+
+                    Console.WriteLine("Udenfor:");
+
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Console.Write("Temp:");
+
+                    Console.WriteLine(ds.OutdoorTemp().ToString("N") + "°C");
+
+                    Console.Write("Fugt:");
+
+                    Console.WriteLine(ds.OutdoorHumidity().ToString("N") + "%");
+                    Console.WriteLine();
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Vare under min");
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+
+                    foreach (string undermin in ds.StockItemsUnderMin())
+                        Console.WriteLine(undermin);
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Vare over max");
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    foreach (string overmax in ds.StockItemsOverMax())
+                        Console.WriteLine(overmax);
+                    Console.WriteLine();
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Mest solgte i dag");
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.White;
+                    foreach (string Sold in ds.StockItemsMostSold())
+                        Console.WriteLine(Sold);
+                    Console.WriteLine();
+
+            //Dato + timer 
+
+            // Opretter tidssoner for København, London og Singapore
+            TimeZoneInfo copenhagenTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+            TimeZoneInfo londonTimeZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+            TimeZoneInfo singaporeTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Flytter konsolens position til toppen
+            int top = Console.CursorTop;
+
+
+                // Løkke, der opdaterer klokkeslættet hvert sekund
+                while (tid != 300)
+                {
+                    // Gemmer konsolens aktuelle position
+                    int left = Console.CursorLeft;
+
+                    // Henter aktuelle tidspunkter for de tre tidssoner
+                    DateTime copenhagenTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, copenhagenTimeZone);
+                    DateTime londonTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, londonTimeZone);
+                    DateTime singaporeTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, singaporeTimeZone);
+
+                    // Flytter konsolens position tilbage til toppen
+                    Console.SetCursorPosition(left, top);
+
+                    // Viser klokkeslæt for de tre tidssoner med sekunder
+                    Console.WriteLine("København: " + copenhagenTime.ToString("HH:mm:ss"));
+                    Console.WriteLine("London: " + londonTime.ToString("HH:mm:ss"));
+                    Console.WriteLine("Singapore: " + singaporeTime.ToString("HH:mm:ss"));
+
+                    tid++;
+                    // Venter et sekund før næste opdatering
+                    System.Threading.Thread.Sleep(1000);
+
+
+                }
+            }
+            Console.ReadKey();
+        }
+    }
+}
